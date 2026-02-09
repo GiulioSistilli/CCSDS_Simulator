@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:common="http://www.ccsds.org/schema/Common"
+           targetNamespace="http://www.ccsds.org/schema/Common"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+    <!-- =========================================== -->
+    <!-- BASIC DATA TYPES -->
+    <!-- =========================================== -->
+
+    <xs:simpleType name="ParameterIdType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[A-Za-z0-9_\-\.]+"/>
+            <xs:maxLength value="256"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="RequestIdType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[A-Za-z0-9_\-]+"/>
+            <xs:maxLength value="128"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="UtcTimestampType">
+        <xs:restriction base="xs:dateTime">
+            <xs:pattern value=".+(Z|[\+\-]\d{2}:\d{2})"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="DurationType">
+        <xs:restriction base="xs:duration">
+            <xs:pattern value="P(?:\d+Y)?(?:\d+M)?(?:\d+D)?T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="VersionType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="\d+(\.\d+){0,2}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="UnitType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[A-Za-z0-9_/\*°²³µΩΑ-Ωα-ω]+"/>
+            <xs:maxLength value="32"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- =========================================== -->
+    <!-- QUALITY OF SERVICE -->
+    <!-- =========================================== -->
+
+    <xs:complexType name="QualityOfServiceType">
+        <xs:sequence>
+            <xs:element name="priority" type="xs:integer" minOccurs="0"/>
+            <xs:element name="timeout" type="common:DurationType" minOccurs="0"/>
+            <xs:element name="reliability" type="common:ReliabilityType" minOccurs="0"/>
+            <xs:element name="securityLevel" type="common:SecurityLevelType" minOccurs="0"/>
+            <xs:element name="persistence" type="xs:boolean" minOccurs="0" default="false"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="ReliabilityType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="BEST_EFFORT"/>
+            <xs:enumeration value="AT_LEAST_ONCE"/>
+            <xs:enumeration value="AT_MOST_ONCE"/>
+            <xs:enumeration value="EXACTLY_ONCE"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="SecurityLevelType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="NONE"/>
+            <xs:enumeration value="INTEGRITY"/>
+            <xs:enumeration value="CONFIDENTIALITY"/>
+            <xs:enumeration value="INTEGRITY_AND_CONFIDENTIALITY"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- =========================================== -->
+    <!-- RESULT AND STATUS -->
+    <!-- =========================================== -->
+
+    <xs:complexType name="ResultType">
+        <xs:sequence>
+            <xs:element name="status" type="common:StatusType"/>
+            <xs:element name="errorCode" type="xs:string" minOccurs="0"/>
+            <xs:element name="errorMessage" type="xs:string" minOccurs="0"/>
+            <xs:element name="additionalInfo" type="common:PropertyListType" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="StatusType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="SUCCESS"/>
+            <xs:enumeration value="PARTIAL_SUCCESS"/>
+            <xs:enumeration value="FAILURE"/>
+            <xs:enumeration value="IN_PROGRESS"/>
+            <xs:enumeration value="CANCELLED"/>
+            <xs:enumeration value="TIMEOUT"/>
+            <xs:enumeration value="REJECTED"/>
+            <xs:enumeration value="NOT_SUPPORTED"/>
+            <xs:enumeration value="NOT_AUTHORIZED"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- =========================================== -->
+    <!-- PROPERTIES AND ANNOTATIONS -->
+    <!-- =========================================== -->
+
+    <xs:complexType name="PropertyListType">
+        <xs:sequence>
+            <xs:element name="property" type="common:PropertyType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="PropertyType">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="value" type="common:PropertyValueType"/>
+            <xs:element name="description" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="PropertyValueType">
+        <xs:choice>
+            <xs:element name="stringValue" type="xs:string"/>
+            <xs:element name="integerValue" type="xs:long"/>
+            <xs:element name="floatValue" type="xs:double"/>
+            <xs:element name="booleanValue" type="xs:boolean"/>
+            <xs:element name="timestampValue" type="common:UtcTimestampType"/>
+            <xs:element name="durationValue" type="common:DurationType"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="AnnotationListType">
+        <xs:sequence>
+            <xs:element name="annotation" type="common:AnnotationType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="AnnotationType">
+        <xs:sequence>
+            <xs:element name="author" type="xs:string" minOccurs="0"/>
+            <xs:element name="timestamp" type="common:UtcTimestampType"/>
+            <xs:element name="type" type="common:AnnotationTypeType" minOccurs="0"/>
+            <xs:element name="text" type="xs:string"/>
+            <xs:element name="references" type="common:ReferenceListType" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="AnnotationTypeType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="NOTE"/>
+            <xs:enumeration value="WARNING"/>
+            <xs:enumeration value="ERROR"/>
+            <xs:enumeration value="DEBUG"/>
+            <xs:enumeration value="CHANGE_LOG"/>
+            <xs:enumeration value="QUALIFICATION"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- =========================================== -->
+    <!-- CONDITIONS AND REFERENCES -->
+    <!-- =========================================== -->
+
+    <xs:complexType name="ConditionListType">
+        <xs:sequence>
+            <xs:element name="condition" type="common:ConditionType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ConditionType">
+        <xs:sequence>
+            <xs:element name="conditionId" type="xs:string"/>
+            <xs:element name="description" type="xs:string" minOccurs="0"/>
+            <xs:element name="expression" type="xs:string"/>
+            <xs:element name="parameters" type="common:PropertyListType" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ReferenceListType">
+        <xs:sequence>
+            <xs:element name="reference" type="common:ReferenceType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ReferenceType">
+        <xs:sequence>
+            <xs:element name="referenceType" type="common:ReferenceTypeType"/>
+            <xs:element name="referenceId" type="xs:string"/>
+            <xs:element name="description" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="ReferenceTypeType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="DOCUMENT"/>
+            <xs:enumeration value="REQUIREMENT"/>
+            <xs:enumeration value="PARAMETER"/>
+            <xs:enumeration value="COMMAND"/>
+            <xs:enumeration value="TELEMETRY"/>
+            <xs:enumeration value="EVENT"/>
+            <xs:enumeration value="ALERT"/>
+            <xs:enumeration value="PROCEDURE"/>
+            <xs:enumeration value="MODEL"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>

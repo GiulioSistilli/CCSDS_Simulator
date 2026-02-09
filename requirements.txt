@@ -1,0 +1,10 @@
+# requirements.txt
+fastapi
+uvicorn
+xmltodict
+requests
+numpy
+pydantic
+aiofiles
+python-socketio
+spacepackets

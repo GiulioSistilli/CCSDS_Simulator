@@ -1,0 +1,16 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  mo-service:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - LOG_LEVEL=INFO
+      
+  test-client:
+    build: .
+    command: python test_client.py
+    depends_on:
+      - mo-service
